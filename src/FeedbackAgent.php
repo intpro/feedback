@@ -135,9 +135,6 @@ class FeedbackAgent implements FeedbackAgentInterface
 
             \Illuminate\Support\Facades\Mail::setSwiftMailer($backup);
 
-            $update_fields['mailed'] = true;
-            $this->updateAgent->update($group_name, $mailItem->id, $update_fields);
-
         }catch (\Exception $exception){
 
             $update_fields['mailed'] = false;
