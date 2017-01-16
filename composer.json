@@ -1,0 +1,39 @@
+{
+    "name": "interpro/feedback",
+    "description": "Формы обратной связи.",
+    "version": "1.0.1",
+    "require": {
+        "interpro/core": "1.0.*",
+        "interpro/extractor": "1.0.*",
+        "interpro/entrance": "1.0.*"
+    },
+    "keywords": [
+        "feedback"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Boris Dorofeev",
+            "email": "boris.dorofeev@gmail.com"
+        }
+    ],
+    "autoload": {
+        "classmap": [],
+        "files": [],
+        "psr-4": {
+            "Interpro\\Feedback\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Interpro\\Feedback\\Test": "test/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable" : true
+}
