@@ -2,8 +2,11 @@
 
 namespace Interpro\Feedback;
 
+use Illuminate\Support\Facades\View;
 use Interpro\Entrance\Contracts\CommandAgent\InitAgent;
+use Interpro\Entrance\Contracts\CommandAgent\UpdateAgent;
 use Interpro\Entrance\Contracts\Extract\ExtractAgent;
+use Interpro\Extractor\Contracts\Items\AItem;
 use Interpro\Feedback\Contracts\FeedbackAgent as FeedbackAgentInterface;
 use Interpro\Feedback\Exception\FeedbackException;
 
@@ -12,11 +15,13 @@ class FeedbackAgent implements FeedbackAgentInterface
     private $body_templates = [];
     private $extractAgent;
     private $initAgent;
+    private $updateAgent;
 
-    public function __construct(ExtractAgent $extractAgent, InitAgent $initAgent)
+    public function __construct(ExtractAgent $extractAgent, InitAgent $initAgent, UpdateAgent $updateAgent)
     {
         $this->extractAgent = $extractAgent;
         $this->initAgent = $initAgent;
+        $this->updateAgent = $updateAgent;
     }
 
     /**
@@ -44,32 +49,19 @@ class FeedbackAgent implements FeedbackAgentInterface
         $this->body_templates[$form] = $template;
     }
 
-    private function getMailConfig($form)
+    private function getMailConfig(AItem $feedback, AItem $form)
     {
-        $feedbackFields = $this->extractAgent->getBlock('feedback')->getOwns();
-        $formFields = $this->extractAgent->getBlock($form)->getOwns();
-
         $conf_params = ['from'=>'', 'to'=>'', 'subject'=>'', 'username'=>'', 'password'=>'', 'host'=>'', 'port'=>'', 'encryption'=>''];
 
         foreach($conf_params as $field_name => $field_value)
         {
             //Попытка 1 - получить из формы
-            if($formFields->exist($field_name))
-            {
-                $form_field_value = $formFields->getOwnByName($field_name);
-            }
-            else
-            {
-                $form_field_value = '';
-            }
+            $form_field_value = $form->$field_name;
 
             //Попытка 2 - получить из общих настроек
             if(!$form_field_value)
             {
-                if($feedbackFields->exist($field_name))
-                {
-                    $form_field_value = $feedbackFields->getOwnByName($field_name);
-                }
+                $form_field_value = $feedback->$field_name;
             }
 
             //Попытка 3 - получить из конфига
@@ -87,14 +79,25 @@ class FeedbackAgent implements FeedbackAgentInterface
     /**
      * @param string $form
      * @param array $fields
-     * @return void
+     * @return \Interpro\Extractor\Contracts\Items\AItem
      */
     public function mail($form, array $fields)
     {
-        //Написано без очередей
-        $config = $this->getMailConfig($form);
+        $feedbackBlock = $this->extractAgent->getBlock('feedback');
+        $formBlock = $this->extractAgent->getBlock($form);
+
+        $group_name = $form.'_mail';
+
+        $config = $this->getMailConfig($feedbackBlock, $formBlock);
 
         $template = $this->getBodyTemplate($form);
+
+        $mailItem = $this->initAgent->init($group_name, array_merge($fields, $config));
+
+        $id = $mailItem->id;
+
+        $body = nl2br(View::make($template, ['mailItem' => $mailItem])->render());
+        $update_fields['body'] = $body;
 
         $backup = \Illuminate\Support\Facades\Mail::getSwiftMailer();
 
@@ -106,27 +109,47 @@ class FeedbackAgent implements FeedbackAgentInterface
 
         \Illuminate\Support\Facades\Mail::setSwiftMailer($tr_mail);
 
+        $updateAgent = $this->updateAgent;
+
+        $copies = [];
+        foreach($formBlock->getGroup('form1_mailto') as $mailto)
+        {
+            $copies[] = $mailto->to;
+        }
+
         try{
-            \Illuminate\Support\Facades\Mail::send($template, $fields,
-                function($message) use ($config)
+            \Illuminate\Support\Facades\Mail::queue('interpro.feedback.mailwrapper', ['body' => $body],
+                function($message) use ($config, $group_name, $body, $id, $copies, $updateAgent)
                 {
                     $message->from($config['from']);
                     $message->to($config['to']);
                     $message->subject($config['subject']);
+
+                    foreach($copies as $copy)
+                    {
+                        $message->cc($copy);
+                    }
+
+                    $updateAgent->update($group_name, $id, ['mailed' => true]);
                 });
 
             \Illuminate\Support\Facades\Mail::setSwiftMailer($backup);
 
-            $fields['mailed'] = true;
-
-            $this->initAgent->init($form.'_mail', array_merge($fields, $config));
+            $update_fields['mailed'] = true;
+            $this->updateAgent->update($group_name, $mailItem->id, $update_fields);
 
         }catch (\Exception $exception){
 
-            $fields['mailed'] = false;
-            $fields['report'] = $exception->getMessage();
-
-            $this->initAgent->init($form.'_mail', array_merge($fields, $config));
+            $update_fields['mailed'] = false;
+            $update_fields['report'] = $exception->getMessage();
         }
+
+        $update_fields['body'] = $body;
+
+        $this->updateAgent->update($group_name, $mailItem->id, $update_fields);
+
+        $mailItem = $this->extractAgent->getGroupItem($group_name, $mailItem->id)->getOwns();
+
+        return $mailItem;
     }
 }

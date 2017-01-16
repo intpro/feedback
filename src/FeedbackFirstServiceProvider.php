@@ -16,6 +16,7 @@ class FeedbackFirstServiceProvider extends ServiceProvider
         Log::info('Загрузка FeedbackFirstServiceProvider');
 
         $this->publishes([__DIR__.'/config/feedback.php' => config_path('interpro/feedback.php')]);
+        $this->publishes([__DIR__.'/views/mailwrapper.blade.php' => resource_path('views/interpro/feedback/mailwrapper.blade.php')]);
 
         $this->publishes([
             __DIR__.'/migrations' => database_path('migrations')
