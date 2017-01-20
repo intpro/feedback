@@ -176,6 +176,8 @@ class FeedbackQuerier
             $get_fields[] = $model_table.'.port';
             $get_fields[] = $model_table.'.encryption';
             $get_fields[] = $model_table.'.report';
+            $get_fields[] = $model_table.'.updated_at';
+            $get_fields[] = $model_table.'.created_at';
         }
         elseif($model_table === 'fbmailtos')
         {

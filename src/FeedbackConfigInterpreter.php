@@ -37,6 +37,11 @@ class FeedbackConfigInterpreter
             throw new FeedbackException('Не зарегестрировано имя типа int, интерпретация предопределенных полей не возможна!');
         }
 
+        if(!in_array('timestamp', $c_names))
+        {
+            throw new FeedbackException('Не зарегестрировано имя типа timestamp, интерпретация предопределенных полей не возможна!');
+        }
+
         if(!in_array('bool', $c_names))
         {
             throw new FeedbackException('Не зарегестрировано имя типа bool, интерпретация предопределенных полей не возможна!');
@@ -194,7 +199,9 @@ class FeedbackConfigInterpreter
                     'email' => 'string',
                     'body' => 'text',
                     'mailed' => 'bool',
-                    'report' => 'string'],
+                    'report' => 'string',
+                    'updated_at' => 'timestamp',
+                    'created_at' => 'timestamp'],
                     $domain_owns);
 
                 $mail_refs = ['block_name' => $form_name];

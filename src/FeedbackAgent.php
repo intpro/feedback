@@ -3,6 +3,8 @@
 namespace Interpro\Feedback;
 
 use Illuminate\Support\Facades\View;
+use Interpro\Core\Taxonomy\Enum\TypeMode;
+use Interpro\Core\Taxonomy\Enum\TypeRank;
 use Interpro\Entrance\Contracts\CommandAgent\InitAgent;
 use Interpro\Entrance\Contracts\CommandAgent\UpdateAgent;
 use Interpro\Entrance\Contracts\Extract\ExtractAgent;
@@ -96,7 +98,17 @@ class FeedbackAgent implements FeedbackAgentInterface
 
         $id = $mailItem->id;
 
-        $body = nl2br(View::make($template, ['mailItem' => $mailItem])->render());
+        $params = [];
+
+        foreach($mailItem->getOwns() as $own)
+        {
+            if($own->getFieldMeta()->getMode() === TypeMode::MODE_C)
+            {
+                $params[$own->getName()] = $own->getItem()->getValue();
+            }
+        }
+
+        $body = View::make($template, $params)->render();
         $update_fields['body'] = $body;
 
         $backup = \Illuminate\Support\Facades\Mail::getSwiftMailer();
@@ -112,14 +124,14 @@ class FeedbackAgent implements FeedbackAgentInterface
         $updateAgent = $this->updateAgent;
 
         $copies = [];
-        foreach($formBlock->getGroup('form1_mailto') as $mailto)
+        foreach($formBlock->getGroup($form.'_mailto') as $mailto)
         {
             $copies[] = $mailto->to;
         }
 
         try{
-            \Illuminate\Support\Facades\Mail::queue('interpro.feedback.mailwrapper', ['body' => $body],
-                function($message) use ($config, $group_name, $body, $id, $copies, $updateAgent)
+            \Illuminate\Support\Facades\Mail::queue($template, $params,
+                function($message) use ($config, $group_name, $id, $copies, $updateAgent)
                 {
                     $message->from($config['from']);
                     $message->to($config['to']);
@@ -145,7 +157,7 @@ class FeedbackAgent implements FeedbackAgentInterface
 
         $this->updateAgent->update($group_name, $mailItem->id, $update_fields);
 
-        $mailItem = $this->extractAgent->getGroupItem($group_name, $mailItem->id)->getOwns();
+        $mailItem = $this->extractAgent->getGroupItem($group_name, $mailItem->id);
 
         return $mailItem;
     }

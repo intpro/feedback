@@ -32,7 +32,7 @@ class FeedbackAMapper implements AMapper
     private $tuner;
     private $items = [];
     private $collections = [];
-    private $local_fields = ['id','name','from','subject','to','username','email','body','mailed','host','port','encryption','report','password','domain'];
+    private $local_fields = ['id','name','from','subject','to','username','email','body','mailed','host','port','encryption','report','password','domain', 'updated_at', 'created_at'];
 
     public function __construct(FeedbackItemFactory $factory, CollectionFactory $collectionFactory, CItemBuilder $cItemBuilder, MappersMediator $mappersMediator, FeedbackQuerier $querier, Tuner $tuner)
     {

@@ -27,11 +27,16 @@ class ConfigInterpreterTest extends \PHPUnit_Framework_TestCase
         $name = 'text';
         $manC4 = new \Interpro\Core\Taxonomy\Manifests\CTypeManifest($family, $name, [], []);
 
+        $family = 'scalar';
+        $name = 'timestamp';
+        $manC5 = new \Interpro\Core\Taxonomy\Manifests\CTypeManifest($family, $name, [], []);
+
         $manifestsCollection = new \Interpro\Core\Taxonomy\Collections\ManifestsCollection();
         $manifestsCollection->addManifest($manC1);
         $manifestsCollection->addManifest($manC2);
         $manifestsCollection->addManifest($manC3);
         $manifestsCollection->addManifest($manC4);
+        $manifestsCollection->addManifest($manC5);
 
         $fCList = new TypesForecastList();
 
@@ -39,6 +44,7 @@ class ConfigInterpreterTest extends \PHPUnit_Framework_TestCase
         $fCList->registerCTypeName('text');
         $fCList->registerCTypeName('int');
         $fCList->registerCTypeName('bool');
+        $fCList->registerCTypeName('timestamp');
 
         $interpreter = new FeedbackConfigInterpreter($fCList);
 
@@ -155,7 +161,7 @@ class ConfigInterpreterTest extends \PHPUnit_Framework_TestCase
 
         $form1_mail = $tax->getType('form1_mail');
 
-        $must_be = '{id:int,name:string,from:string,subject:string,to:string,username:string,email:string,body:text,mailed:bool,report:string,host:string,port:string,encryption:string,descr7:string,descr8:string,number7:int,number8:int,block_name:form1,superior:form1,}';
+        $must_be = '{id:int,name:string,from:string,subject:string,to:string,username:string,email:string,body:text,mailed:bool,report:string,updated_at:timestamp,created_at:timestamp,host:string,port:string,encryption:string,descr7:string,descr8:string,number7:int,number8:int,block_name:form1,superior:form1,}';
 
         $we_have = '{';
 
