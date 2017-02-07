@@ -43,7 +43,7 @@ class FeedbackSecondServiceProvider extends ServiceProvider
                          RefConsistMediator $refConsistMediator,
                          Tuner $tuner)
     {
-        Log::info('Загрузка FeedbackSecondServiceProvider');
+        //Log::info('Загрузка FeedbackSecondServiceProvider');
 
         $querier = new FeedbackQuerier($joinMediator);
 
@@ -77,7 +77,7 @@ class FeedbackSecondServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        Log::info('Регистрация FeedbackSecondServiceProvider');
+        //Log::info('Регистрация FeedbackSecondServiceProvider');
 
         $config = config('interpro.feedback');
 

@@ -83,7 +83,7 @@ class FeedbackAgent implements FeedbackAgentInterface
      * @param array $fields
      * @return \Interpro\Extractor\Contracts\Items\AItem
      */
-    public function mail($form, array $fields)
+    public function mail($form, array $fields = [])
     {
         $feedbackBlock = $this->extractAgent->getBlock('feedback');
         $formBlock = $this->extractAgent->getBlock($form);

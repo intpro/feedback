@@ -13,7 +13,7 @@ class FeedbackFirstServiceProvider extends ServiceProvider
      */
     public function boot(Dispatcher $dispatcher)
     {
-        Log::info('Загрузка FeedbackFirstServiceProvider');
+        //Log::info('Загрузка FeedbackFirstServiceProvider');
 
         $this->publishes([__DIR__.'/config/feedback.php' => config_path('interpro/feedback.php')]);
         //$this->publishes([__DIR__.'/views/mailwrapper.blade.php' => resource_path('views/interpro/feedback/mailwrapper.blade.php')]);
@@ -28,7 +28,7 @@ class FeedbackFirstServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        Log::info('Регистрация FeedbackFirstServiceProvider');
+        //Log::info('Регистрация FeedbackFirstServiceProvider');
 
         //Регистрируем имена, для интерпретации типов при загрузке
         $forecastList = $this->app->make('Interpro\Core\Contracts\Taxonomy\TypesForecastList');

@@ -13,7 +13,7 @@ class FeedbackUseServiceProvider extends ServiceProvider {
      */
     public function boot(Dispatcher $dispatcher)
     {
-        Log::info('Загрузка FeedbackUseServiceProvider');
+        //Log::info('Загрузка FeedbackUseServiceProvider');
     }
 
     /**
@@ -23,7 +23,7 @@ class FeedbackUseServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        Log::info('Регистрация FeedbackUseServiceProvider');
+        //Log::info('Регистрация FeedbackUseServiceProvider');
 
         $this->app->singleton(
             'Interpro\Feedback\Contracts\FeedbackAgent',
