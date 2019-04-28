@@ -5,6 +5,7 @@ namespace Interpro\Feedback\Db;
 use Interpro\Core\Contracts\Ref\ARef;
 use Interpro\Core\Contracts\Taxonomy\Fields\OwnField;
 use Interpro\Core\Contracts\Taxonomy\Fields\RefField;
+use Interpro\Core\Helpers;
 use Interpro\Core\Taxonomy\Enum\TypeMode;
 use Interpro\Core\Taxonomy\Enum\TypeRank;
 use Interpro\Extractor\Contracts\Collections\MapBCollection;
@@ -157,7 +158,7 @@ class FeedbackAMapper implements AMapper
         }
 
         $result = $this->querier->selectByRef($ref);
-        $result = $result->get();
+        $result = Helpers::laravel_db_result_to_array($result->get());
 
         if(count($result) === 0)
         {
@@ -240,7 +241,12 @@ class FeedbackAMapper implements AMapper
 
         $qb = $this->querier->selectByUnit($selectionUnit);
 
-        $result_array = $qb->get();
+        $result_array = Helpers::laravel_db_result_to_array($qb->get());
+
+        if(gettype($result_array) != 'array')
+        {
+            $result_array = $result_array->map(function($x){ return (array) $x;})->toArray();
+        }
 
         $id_set = array_column($result_array, 'id');
 
