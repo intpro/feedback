@@ -113,7 +113,7 @@ class FeedbackAgent implements FeedbackAgentInterface
 
         $backup = \Illuminate\Support\Facades\Mail::getSwiftMailer();
 
-        $transport = \Swift_SmtpTransport::newInstance($config['host'], $config['port'], $config['encryption']);
+        $transport = new \Swift_SmtpTransport($config['host'], $config['port'], $config['encryption']);
         $transport->setUsername($config['username']);
         $transport->setPassword($config['password']);
 

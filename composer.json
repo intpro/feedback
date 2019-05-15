@@ -1,7 +1,7 @@
 {
     "name": "interpro/feedback",
     "description": "Формы обратной связи.",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "require": {
         "interpro/core": "1.2.*",
         "interpro/extractor": "1.0.*",
