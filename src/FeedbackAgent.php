@@ -130,7 +130,7 @@ class FeedbackAgent implements FeedbackAgentInterface
         }
 
         try{
-            \Illuminate\Support\Facades\Mail::queue($template, $params,
+            \Illuminate\Support\Facades\Mail::send($template, $params,
                 function($message) use ($config, $group_name, $id, $copies, $updateAgent)
                 {
                     $message->from($config['from']);
